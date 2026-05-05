@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I'm Sorry ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose:        #ff4d6d;
+    --blush:       #ff85a1;
+    --lavender:    #c77dff;
+    --deep:        #7b2d8b;
+    --midnight:    #0d0015;
+    --card-bg:     rgba(255,255,255,0.06);
+    --card-border: rgba(255,120,160,0.18);
+    --glow-rose:   0 0 40px rgba(255,77,109,0.45);
+    --glow-soft:   0 0 80px rgba(199,125,255,0.25);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    min-height: 100vh;
+    background: var(--midnight);
+    font-family: 'DM Sans', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  /* ── Animated mesh background ── */
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 20%, rgba(123,45,139,0.55) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 85% 75%, rgba(255,77,109,0.35) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 70% at 50% 50%, rgba(13,0,21,1) 40%, transparent 100%);
+    animation: bgShift 12s ease-in-out infinite alternate;
+  }
+  @keyframes bgShift {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    100% { filter: hue-rotate(18deg) brightness(1.08); }
+  }
+
+  /* ── Grain overlay ── */
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  /* ── Floating hearts canvas ── */
+  #hearts { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+
+  /* ── Main card ── */
+  .card {
+    position: relative; z-index: 10;
+    max-width: 600px; width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 5vw, 3rem);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    box-shadow: var(--glow-soft), 0 32px 80px rgba(0,0,0,0.55);
+    animation: cardIn 1s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(40px) scale(.96); }
+    to   { opacity:1; transform: translateY(0)   scale(1); }
+  }
+
+  /* ── Header ── */
+  .tag {
+    display: inline-block;
+    font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--blush);
+    border: 1px solid rgba(255,133,161,.3);
+    border-radius: 999px;
+    padding: .3rem .9rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.15;
+    background: linear-gradient(135deg, #fff 30%, var(--blush) 60%, var(--lavender));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: .5rem;
+  }
+
+  .sub {
+    font-size: .92rem; color: rgba(255,255,255,.45);
+    margin-bottom: 2.2rem;
+    font-style: italic;
+  }
+
+  /* ── Message box ── */
+  .msg-wrap {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,120,160,.12);
+    border-radius: 18px;
+    padding: 1.6rem 1.8rem;
+    min-height: 130px;
+    display: flex; align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .msg-wrap::before {
+    content: '\201C';
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem; line-height: 1;
+    color: var(--rose); opacity: .15;
+    position: absolute; top: -10px; left: 10px;
+    pointer-events: none;
+  }
+
+  #message {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2.8vw, 1.18rem);
+    line-height: 1.7;
+    color: rgba(255,255,255,.92);
+    position: relative; z-index: 1;
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  #message.visible { opacity: 1; }
+
+  .cursor {
+    display: inline-block;
+    width: 2px; height: 1.1em;
+    background: var(--rose);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink .7s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── Progress dots ── */
+  .dots {
+    display: flex; gap: .5rem; justify-content: center;
+    margin-bottom: 1.8rem;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    transition: all .4s ease;
+    cursor: pointer;
+  }
+  .dot.active {
+    background: var(--rose);
+    box-shadow: 0 0 10px var(--rose);
+    width: 22px; border-radius: 4px;
+  }
+
+  /* ── Buttons ── */
+  .btn-row {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .95rem; font-weight: 500;
+    border: none; border-radius: 999px;
+    padding: .75rem 1.8rem;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .3s ease, filter .3s ease;
+    letter-spacing: .03em;
+    display: flex; align-items: center; gap: .5rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose) 0%, var(--lavender) 100%);
+    color: #fff;
+    box-shadow: 0 0 25px rgba(255,77,109,.5), 0 8px 30px rgba(0,0,0,.4);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 25px rgba(255,77,109,.5), 0 8px 30px rgba(0,0,0,.4); }
+    50%      { box-shadow: 0 0 50px rgba(255,77,109,.8), 0 12px 40px rgba(0,0,0,.5); }
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.04);
+    filter: brightness(1.1);
+    animation: none;
+    box-shadow: 0 0 60px rgba(255,77,109,.9), 0 16px 40px rgba(0,0,0,.5);
+  }
+  .btn-primary:active { transform: scale(.97); }
+
+  .btn-ghost {
+    background: rgba(255,255,255,.07);
+    color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.14);
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,.13);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  /* ── Music status ── */
+  .music-status {
+    font-size: .75rem; color: rgba(255,255,255,.3);
+    text-align: center; margin-top: 1.2rem;
+    letter-spacing: .05em;
+    transition: color .3s;
+  }
+  .music-status.on { color: var(--blush); }
+
+  /* ── Timer ring ── */
+  .timer-wrap {
+    position: absolute; top: 1.2rem; right: 1.4rem;
+  }
+  .timer-svg { width: 36px; height: 36px; transform: rotate(-90deg); }
+  .timer-bg { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 3; }
+  .timer-ring {
+    fill: none; stroke: var(--rose); stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 88; stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  /* ── Signature ── */
+  .sig {
+    margin-top: 2rem; text-align: center;
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: .88rem; color: rgba(255,255,255,.3);
+    letter-spacing: .04em;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .btn-row { flex-direction: column; align-items: stretch; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="grain"></div>
+<canvas id="hearts"></canvas>
+
+<div class="card">
+  <div class="timer-wrap" title="Next message countdown">
+    <svg class="timer-svg" viewBox="0 0 30 30">
+      <circle class="timer-bg" cx="15" cy="15" r="12"/>
+      <circle class="timer-ring" id="timerRing" cx="15" cy="15" r="12"/>
+    </svg>
+  </div>
+
+  <div class="tag">A heartfelt confession ❤️</div>
+  <h1 class="headline">I'm Sorry,<br><em>Truly.</em></h1>
+  <p class="sub">Kuch baatein dil se hoti hain…</p>
+
+  <div class="msg-wrap">
+    <p id="message"><span id="typed"></span><span class="cursor" id="cursor"></span></p>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="nextBtn" onclick="nextMsg()">
+      Next Message ❤️
+    </button>
+    <button class="btn btn-ghost" id="musicBtn" onclick="toggleMusic()">
+      🎵 Music
+    </button>
+  </div>
+
+  <div class="music-status" id="musicStatus">♪ Romantic music off</div>
+  <p class="sig">— With all my love & regret 💫</p>
+</div>
+
+<!-- Hidden audio element using a royalty-free tone loop -->
+<audio id="bgMusic" loop>
+  <!-- We'll generate a soft tone via Web Audio API instead -->
+</audio>
+
+<script>
+/* ─────────────────────────────────────────
+   MESSAGES
+───────────────────────────────────────── */
+const messages = [
+  "Mujhe pata hai main tumhe pareshan karta hu, irritate bhi kar deta hu… par jitna main tumhe tang karta hu, usse kahi zyada main tumhe chahta hu — dil ki gehraaiyon se ❤️",
+  "Kal raat maine jo kaha uske liye sincerely sorry… Tumhara dil dukhaana kabhi meri niyyat nahi thi. Tum mere liye bahut khaas ho 💔",
+  "Main tumhe kabhi khona nahi chahta… Tum meri life mein woh roshan sitara ho jo mujhe rasta dikhata hai 💫",
+  "Galti meri thi aur main jaanta hoon… par pyaar? Pyaar sirf tumse hi hai, aur hamesha rahega ❤️",
+  "Please mujhse naraz mat raho… Tumhara muskurana hi meri duniya hai. I really, truly care about you 🥺",
+  "Koi baat nahi kitni bhi takraar ho jaye — tumse dur rehna mujhse bardasht nahi hota. Maaf kar do na 🌸",
+  "Tumhari aankhon mein jo dard maine dekha, woh mujhe aaj bhi tadpata hai. Main sach mein bahut sorry hoon 💜"
+];
+
+let current = Math.floor(Math.random() * messages.length);
+let typing  = false;
+let typeTimeout, autoTimer, countdownInterval;
+const INTERVAL = 5000;
+let ringVal = 88;
+
+/* ─────────────────────────────────────────
+   DOTS
+───────────────────────────────────────── */
+const dotsEl = document.getElementById('dots');
+messages.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === current ? ' active' : '');
+  d.onclick = () => { clearAuto(); showMsg(i); startAuto(); };
+  dotsEl.appendChild(d);
+});
+
+function updateDots() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i === current ? ' active' : '');
+  });
+}
+
+/* ─────────────────────────────────────────
+   TYPING ANIMATION
+───────────────────────────────────────── */
+function showMsg(idx) {
+  if (typing) clearTimeout(typeTimeout);
+  current = idx;
+  updateDots();
+
+  const msgEl   = document.getElementById('message');
+  const typedEl = document.getElementById('typed');
+  const curEl   = document.getElementById('cursor');
+
+  msgEl.classList.remove('visible');
+  typedEl.textContent = '';
+  curEl.style.display = 'inline-block';
+
+  setTimeout(() => {
+    msgEl.classList.add('visible');
+    const text = messages[current];
+    let i = 0;
+    typing = true;
+
+    function type() {
+      if (i < text.length) {
+        typedEl.textContent += text[i++];
+        typeTimeout = setTimeout(type, 28 + Math.random() * 18);
+      } else {
+        typing = false;
+        setTimeout(() => { curEl.style.display = 'none'; }, 800);
+      }
+    }
+    type();
+  }, 350);
+}
+
+/* ─────────────────────────────────────────
+   AUTO ROTATE + TIMER RING
+───────────────────────────────────────── */
+const ring = document.getElementById('timerRing');
+
+function startRing() {
+  ringVal = 88;
+  ring.style.strokeDashoffset = 0;
+  let elapsed = 0;
+  countdownInterval = setInterval(() => {
+    elapsed += 100;
+    const pct = elapsed / INTERVAL;
+    ring.style.strokeDashoffset = 88 * pct;
+    if (elapsed >= INTERVAL) clearInterval(countdownInterval);
+  }, 100);
+}
+
+function clearAuto() {
+  clearInterval(autoTimer);
+  clearInterval(countdownInterval);
+}
+
+function startAuto() {
+  clearAuto();
+  startRing();
+  autoTimer = setInterval(() => {
+    nextMsg();
+  }, INTERVAL);
+}
+
+function nextMsg() {
+  clearAuto();
+  current = (current + 1) % messages.length;
+  showMsg(current);
+  startAuto();
+}
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+showMsg(current);
+startAuto();
+
+/* ─────────────────────────────────────────
+   MUSIC (Web Audio API — soft ambient tone)
+───────────────────────────────────────── */
+let audioCtx = null, musicNodes = [], musicOn = false;
+
+function buildMusic() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const master = audioCtx.createGain();
+  master.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  master.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 3);
+  master.connect(audioCtx.destination);
+
+  // Soft chord: C, E, G, B — gentle sine waves
+  const freqs = [261.63, 329.63, 392.00, 493.88, 130.81];
+  freqs.forEach(f => {
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = f;
+    g.gain.value = f > 200 ? 0.22 : 0.35;
+    osc.connect(g); g.connect(master);
+    osc.start();
+    musicNodes.push(osc, g);
+  });
+
+  // Slow LFO tremolo
+  const lfo = audioCtx.createOscillator();
+  const lfoG = audioCtx.createGain();
+  lfo.frequency.value = 0.18;
+  lfoG.gain.value = 0.018;
+  lfo.connect(lfoG); lfoG.connect(master.gain);
+  lfo.start();
+  musicNodes.push(lfo, lfoG, master);
+}
+
+function toggleMusic() {
+  const status = document.getElementById('musicStatus');
+  const btn    = document.getElementById('musicBtn');
+
+  if (!musicOn) {
+    if (!audioCtx) buildMusic();
+    else audioCtx.resume();
+    musicOn = true;
+    status.textContent = '♪ Romantic music playing…';
+    status.classList.add('on');
+    btn.textContent = '🔇 Music Off';
+  } else {
+    audioCtx && audioCtx.suspend();
+    musicOn = false;
+    status.textContent = '♪ Romantic music off';
+    status.classList.remove('on');
+    btn.textContent = '🎵 Music';
+  }
+}
+
+/* ─────────────────────────────────────────
+   FLOATING HEARTS CANVAS
+───────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('hearts');
+  const ctx    = canvas.getContext('2d');
+  let W, H, hearts = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLORS = ['#ff4d6d','#ff85a1','#c77dff','#ff6b9d','#e040fb','#ff80ab'];
+
+  function Heart() {
+    this.reset = function(init) {
+      this.x    = Math.random() * W;
+      this.y    = init ? Math.random() * H : H + 30;
+      this.size = 8 + Math.random() * 18;
+      this.spd  = 0.4 + Math.random() * 0.8;
+      this.drift= (Math.random() - .5) * 0.5;
+      this.op   = 0.1 + Math.random() * 0.45;
+      this.col  = COLORS[Math.floor(Math.random() * COLORS.length)];
+      this.angle= Math.random() * Math.PI * 2;
+      this.spin = (Math.random() - .5) * 0.02;
+    };
+    this.reset(true);
+
+    this.draw = function() {
+      ctx.save();
+      ctx.globalAlpha = this.op;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.scale(this.size / 30, this.size / 30);
+      ctx.fillStyle = this.col;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.bezierCurveTo( 10,-20, 25, -5,  0,  12);
+      ctx.bezierCurveTo(-25, -5,-10,-20,  0, -10);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    this.update = function() {
+      this.y     -= this.spd;
+      this.x     += this.drift;
+      this.angle += this.spin;
+      if (this.y < -40) this.reset(false);
+    };
+  }
+
+  for (let i = 0; i < 38; i++) hearts.push(new Heart());
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    hearts.forEach(h => { h.update(); h.draw(); });
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Spawn burst on card click
+  document.querySelector('.card').addEventListener('click', function(e) {
+    for (let i = 0; i < 6; i++) {
+      const h = new Heart();
+      h.x = e.clientX + (Math.random()-0.5)*60;
+      h.y = e.clientY;
+      h.spd = 1.5 + Math.random();
+      h.op  = 0.7;
+      hearts.push(h);
+    }
+    setTimeout(() => { hearts.splice(-6); }, 3000);
+  });
+})();
+</script>
+</body>
+</html>
